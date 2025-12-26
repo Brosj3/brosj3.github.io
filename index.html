@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Database with IndexedDB</title>
+    <title>Contact Manager with IndexedDB</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,14 +13,14 @@
         }
         
         body {
-            background-color: #f5f7fa;
+            background-color: #f0f2f5;
             color: #333;
             line-height: 1.6;
             padding: 20px;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background-color: white;
             border-radius: 10px;
@@ -29,7 +29,7 @@
         }
         
         header {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -46,19 +46,29 @@
             font-weight: 300;
         }
         
-        .content {
+        .main-content {
             display: flex;
             flex-wrap: wrap;
-            padding: 20px;
-            gap: 20px;
+            padding: 30px;
+            gap: 30px;
         }
         
-        .form-section, .table-section {
+        .form-section {
             flex: 1;
-            min-width: 300px;
+            min-width: 350px;
+            background: #f8f9fa;
             padding: 25px;
-            background-color: #f9fafc;
             border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table-section {
+            flex: 2;
+            min-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
         }
         
         h2 {
@@ -76,27 +86,27 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #444;
+            color: #495057;
         }
         
         input {
             width: 100%;
             padding: 12px 15px;
-            border: 1px solid #ddd;
+            border: 1px solid #ced4da;
             border-radius: 6px;
             font-size: 16px;
-            transition: border 0.3s;
+            transition: all 0.3s;
         }
         
         input:focus {
             outline: none;
-            border-color: #6a11cb;
-            box-shadow: 0 0 0 2px rgba(106, 17, 203, 0.2);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
         .btn {
             padding: 12px 24px;
-            background-color: #6a11cb;
+            background-color: #667eea;
             color: white;
             border: none;
             border-radius: 6px;
@@ -109,33 +119,33 @@
         }
         
         .btn:hover {
-            background-color: #5a0db5;
+            background-color: #5a6fd8;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         
         .btn-secondary {
-            background-color: #3498db;
+            background-color: #48bb78;
         }
         
         .btn-secondary:hover {
-            background-color: #2980b9;
+            background-color: #38a169;
         }
         
         .btn-danger {
-            background-color: #e74c3c;
+            background-color: #f56565;
         }
         
         .btn-danger:hover {
-            background-color: #c0392b;
+            background-color: #e53e3e;
         }
         
-        .btn-success {
-            background-color: #2ecc71;
+        .btn-warning {
+            background-color: #ed8936;
         }
         
-        .btn-success:hover {
-            background-color: #27ae60;
+        .btn-warning:hover {
+            background-color: #dd6b20;
         }
         
         .button-group {
@@ -145,7 +155,7 @@
             gap: 10px;
         }
         
-        table {
+        .contacts-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
@@ -155,65 +165,138 @@
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
         }
         
-        thead {
-            background-color: #6a11cb;
+        .contacts-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
         
-        th, td {
-            padding: 15px;
+        .contacts-table th {
+            padding: 16px 15px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        tbody tr:hover {
-            background-color: #f8f9fa;
+        .contacts-table th:last-child {
+            border-right: none;
+        }
+        
+        .contacts-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+        
+        .contacts-table tbody tr:hover {
+            background-color: #f7fafc;
         }
         
         .actions {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
         
         .status {
-            padding: 20px;
-            margin: 20px;
+            padding: 15px;
+            margin: 20px 0;
             border-radius: 8px;
             text-align: center;
             font-weight: 600;
+            display: none;
         }
         
         .success {
-            background-color: #d5f4e6;
-            color: #27ae60;
-            border: 1px solid #a3e4c1;
+            background-color: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
         }
         
         .error {
-            background-color: #fadbd8;
-            color: #e74c3c;
-            border: 1px solid #f5b7b1;
+            background-color: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+        
+        .info {
+            background-color: #bee3f8;
+            color: #2a4365;
+            border: 1px solid #90cdf4;
         }
         
         .empty-table {
             text-align: center;
             padding: 40px;
-            color: #7f8c8d;
+            color: #718096;
             font-style: italic;
+        }
+        
+        .search-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #718096;
         }
         
         footer {
             text-align: center;
             padding: 20px;
-            color: #7f8c8d;
+            color: #718096;
             font-size: 0.9rem;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #e2e8f0;
             margin-top: 20px;
         }
         
+        .edit-form {
+            display: none;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
         @media (max-width: 768px) {
-            .content {
+            .main-content {
                 flex-direction: column;
+            }
+            
+            .form-section, .table-section {
+                min-width: 100%;
+            }
+            
+            .contacts-table {
+                display: block;
+                overflow-x: auto;
             }
             
             h1 {
@@ -225,69 +308,137 @@
 <body>
     <div class="container">
         <header>
-            <h1>User Database Manager</h1>
-            <p class="subtitle">Store and manage user information using IndexedDB</p>
+            <h1>Contact Manager</h1>
+            <p class="subtitle">Store and manage contacts with Name, Mobile Number, and Email Address</p>
         </header>
         
-        <div class="content">
+        <div class="main-content">
             <section class="form-section">
-                <h2>Add New User</h2>
-                <form id="userForm">
+                <h2>Add New Contact</h2>
+                <div id="statusMessage" class="status"></div>
+                
+                <form id="contactForm">
                     <div class="form-group">
-                        <label for="name">Full Name</label>
+                        <label for="name">Full Name *</label>
                         <input type="text" id="name" placeholder="Enter full name" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="email">Email Address</label>
+                        <label for="mobile">Mobile Number *</label>
+                        <input type="tel" id="mobile" placeholder="Enter mobile number" required 
+                               pattern="[0-9]{10,15}" title="10-15 digit mobile number">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
                         <input type="email" id="email" placeholder="Enter email address" required>
                     </div>
                     
+                    <div class="form-group">
+                        <label for="address">Address (Optional)</label>
+                        <input type="text" id="address" placeholder="Enter address">
+                    </div>
+                    
                     <div class="button-group">
-                        <button type="submit" class="btn btn-success">Add User</button>
-                        <button type="button" id="clearForm" class="btn btn-secondary">Clear Form</button>
+                        <button type="submit" class="btn btn-secondary">Save Contact</button>
+                        <button type="button" id="clearForm" class="btn">Clear Form</button>
                     </div>
                 </form>
                 
-                <div class="button-group">
-                    <button id="loadDemo" class="btn">Load Demo Data</button>
-                    <button id="clearAll" class="btn btn-danger">Clear All Data</button>
+                <div id="editForm" class="edit-form">
+                    <h3>Edit Contact</h3>
+                    <form id="updateContactForm">
+                        <input type="hidden" id="editId">
+                        <div class="form-group">
+                            <label for="editName">Full Name *</label>
+                            <input type="text" id="editName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editMobile">Mobile Number *</label>
+                            <input type="tel" id="editMobile" required 
+                                   pattern="[0-9]{10,15}" title="10-15 digit mobile number">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editEmail">Email Address *</label>
+                            <input type="email" id="editEmail" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="editAddress">Address</label>
+                            <input type="text" id="editAddress">
+                        </div>
+                        
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-secondary">Update Contact</button>
+                            <button type="button" id="cancelEdit" class="btn btn-danger">Cancel</button>
+                        </div>
+                    </form>
                 </div>
+                
+                <div class="button-group" style="margin-top: 30px;">
+                    <button id="exportData" class="btn">Export Contacts</button>
+                    <button id="importData" class="btn">Import Contacts</button>
+                    <button id="clearAll" class="btn btn-danger">Clear All</button>
+                </div>
+                
+                <input type="file" id="importFile" accept=".json" style="display: none;">
             </section>
             
             <section class="table-section">
-                <h2>User Directory</h2>
-                <div id="statusMessage" class="status" style="display: none;"></div>
+                <h2>Contact Directory</h2>
+                
+                <div class="search-section">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search contacts by name, mobile, or email...">
+                    </div>
+                    <button id="clearSearch" class="btn">Clear Search</button>
+                    <button id="refreshTable" class="btn">Refresh</button>
+                </div>
+                
                 <div id="tableContainer">
-                    <table id="userTable">
+                    <table class="contacts-table" id="contactsTable">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
+                                <th>Mobile</th>
                                 <th>Email</th>
+                                <th>Address</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody">
-                            <!-- Table rows will be inserted here by JavaScript -->
-                            <tr id="emptyRow">
-                                <td colspan="4" class="empty-table">No users found. Add some users to see them here.</td>
-                            </tr>
+                            <!-- Table rows will be inserted here -->
                         </tbody>
                     </table>
                 </div>
-                <div class="button-group">
-                    <button id="refreshTable" class="btn">Refresh Table</button>
-                    <button id="exportData" class="btn btn-secondary">Export Data</button>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalContacts">0</div>
+                        <div class="stat-label">Total Contacts</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="searchResults">0</div>
+                        <div class="stat-label">Search Results</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="storageStatus">OK</div>
+                        <div class="stat-label">Storage Status</div>
+                    </div>
                 </div>
             </section>
         </div>
         
         <footer>
             <p>Data is stored locally in your browser using IndexedDB. No data is sent to any server.</p>
+            <p>Maximum storage available: <span id="storageQuota">Calculating...</span></p>
         </footer>
     </div>
 
-    <script src="indexedDB.js"></script>
+    <!-- IndexedDB JavaScript file -->
+    <script src="contactsDB.js"></script>
 </body>
 </html>
