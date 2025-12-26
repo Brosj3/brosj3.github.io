@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Database with IndexedDB</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .form-section, .table-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 25px;
+            background-color: #f9fafc;
+            border-radius: 8px;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eaeef2;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 2px rgba(106, 17, 203, 0.2);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            background-color: #6a11cb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            background-color: #5a0db5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-secondary {
+            background-color: #3498db;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 25px;
+            gap: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        thead {
+            background-color: #6a11cb;
+            color: white;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .status {
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .success {
+            background-color: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #a3e4c1;
+        }
+        
+        .error {
+            background-color: #fadbd8;
+            color: #e74c3c;
+            border: 1px solid #f5b7b1;
+        }
+        
+        .empty-table {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>User Database Manager</h1>
+            <p class="subtitle">Store and manage user information using IndexedDB</p>
+        </header>
+        
+        <div class="content">
+            <section class="form-section">
+                <h2>Add New User</h2>
+                <form id="userForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" placeholder="Enter full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="Enter email address" required>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success">Add User</button>
+                        <button type="button" id="clearForm" class="btn btn-secondary">Clear Form</button>
+                    </div>
+                </form>
+                
+                <div class="button-group">
+                    <button id="loadDemo" class="btn">Load Demo Data</button>
+                    <button id="clearAll" class="btn btn-danger">Clear All Data</button>
+                </div>
+            </section>
+            
+            <section class="table-section">
+                <h2>User Directory</h2>
+                <div id="statusMessage" class="status" style="display: none;"></div>
+                <div id="tableContainer">
+                    <table id="userTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Table rows will be inserted here by JavaScript -->
+                            <tr id="emptyRow">
+                                <td colspan="4" class="empty-table">No users found. Add some users to see them here.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="button-group">
+                    <button id="refreshTable" class="btn">Refresh Table</button>
+                    <button id="exportData" class="btn btn-secondary">Export Data</button>
+                </div>
+            </section>
+        </div>
+        
+        <footer>
+            <p>Data is stored locally in your browser using IndexedDB. No data is sent to any server.</p>
+        </footer>
+    </div>
+
+    <script src="indexedDB.js"></script>
+</body>
+</html>
